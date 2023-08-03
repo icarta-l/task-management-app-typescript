@@ -38,6 +38,9 @@ module.exports = class User implements UserInterface {
 
     public set username(username: string)
     {
+        // TODO: Implement username check. Must be at least 6 characters long and
+        //       be composed exclusively of letters and numbers with a maximum of 25
+        //       characters.
         this._username = username;
     }
 
@@ -48,6 +51,8 @@ module.exports = class User implements UserInterface {
 
     public set password(password: string)
     {
+        // TODO: Implement password check. Must be at least 10 characters long and
+        //       be composed of at least 3 letters, 1 number and 1 special character.
         this._password = this.hashPassword(password);
     }
 
@@ -63,6 +68,8 @@ module.exports = class User implements UserInterface {
 
     public set firstName(firstName: string)
     {
+        // TODO: Implement first name check. Must be at least 3 characters long and
+        //       be composed exclusively of letters.
         this._firstName = firstName;
     }
 
@@ -73,6 +80,8 @@ module.exports = class User implements UserInterface {
 
     public set lastName(lastName: string)
     {
+        // TODO: Implement first name check. Must be at least 3 characters long and
+        //       be composed exclusively of letters.
         this._lastName = lastName;
     }
 

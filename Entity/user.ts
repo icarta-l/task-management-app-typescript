@@ -38,9 +38,9 @@ module.exports = class User implements UserInterface {
 
     public set username(username: string)
     {
-        // TODO: Implement username check. Must be at least 6 characters long and
-        //       be composed exclusively of letters and numbers with a maximum of 25
-        //       characters.
+        if (username.length < 3) {
+            throw new Error("Property \"username\" has to be at least 3 characters long");
+        }
         this._username = username;
     }
 

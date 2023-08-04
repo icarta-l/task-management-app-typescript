@@ -1,6 +1,6 @@
 import {beforeAll, describe, expect, test} from '@jest/globals';
 const bcrypt = require('bcrypt');
-const User = require("./user");
+const User = require("./user.ts");
 
 describe("User class tests", () => {
     const myTestUser = new User();
@@ -12,6 +12,10 @@ describe("User class tests", () => {
     test("User can set and get IDs", () => {
         myTestUser.id = 15;
         expect(myTestUser.id).toBe(15);
+    });
+
+    test("User cannot set a username shorter than 3 characters", () => {
+        expect(() => { myTestUser.username = "Ab" }).toThrow("Property \"username\" has to be at least 3 characters long");
     });
 
     test("User can set and get usernames", () => {

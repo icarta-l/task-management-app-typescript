@@ -1,4 +1,5 @@
 const bcrypt = require('bcrypt');
+const Validator = require("../Tools/validator.ts");
 
 interface UserInterface extends Entity {
     get username(): string;
@@ -13,6 +14,9 @@ interface UserInterface extends Entity {
 }
 
 module.exports = class User implements UserInterface {
+    static USERNAME_MIN_LENGTH: number = 3;
+    static USERNAME_MAX_LENGTH: number = 20;
+
     private _id: number = 0;
     private _username: string = "";
     private _password: string = "";
@@ -20,6 +24,7 @@ module.exports = class User implements UserInterface {
     private _lastName: string = "";
     
     private _saltRound: number = 10;
+    private _validator: ValidatorInterface = new Validator();
 
     public get id(): number
     {
@@ -38,10 +43,18 @@ module.exports = class User implements UserInterface {
 
     public set username(username: string)
     {
-        if (username.length < 3) {
-            throw new Error("Property \"username\" has to be at least 3 characters long");
+        if (this.usernameIsValid(username)) {
+            this._username = username;
         }
-        this._username = username;
+    }
+
+    private usernameIsValid(username:string): boolean
+    {
+        if(this._validator.stringIsLongEnough(username, User.USERNAME_MIN_LENGTH, "username") && this._validator.stringIsShortEnough(username, User.USERNAME_MAX_LENGTH, "username") && this._validator.stringHasOnlyLettersAndNumbers(username, "username")) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     public get password(): string

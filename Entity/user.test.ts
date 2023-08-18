@@ -50,9 +50,34 @@ describe("User class tests", () => {
         expect(myTestUser.username).toBe("Foo123");
     });
 
+    test("User cannot set a password shorter than " + User.PASSWORD_MIN_LENGTH + " characters", () => {
+        expect(() => { myTestUser.password = "1Abcdef" }).toThrow("Property \"password\" has to be at least " + User.PASSWORD_MIN_LENGTH + " characters long");
+        expect(() => { myTestUser.password = "1Abcdef" }).toThrow(ValidationError);
+    });
+
+    test("User cannot set a password longer than " + User.PASSWORD_MAX_LENGTH + " characters", () => {
+        expect(() => { myTestUser.password = "1Abcdef sxdfs df sdf sdf sdfsdfsdfsdfsdf sd fsd sd fsdfsdfsdfsdf asdfsdfsdf asdf" }).toThrow("Property \"password\" cannot be longer than " + User.PASSWORD_MAX_LENGTH + " characters long");
+        expect(() => { myTestUser.password = "1Abcdef sxdfs df sdf sdf sdfsdfsdfsdfsdf sd fsd sd fsdfsdfsdfsdf asdfsdfsdf asdf" }).toThrow(ValidationError);
+    });
+
+    test("User cannot set a password without at least " + User.PASSWORD_MIN_NUMBER_OF_CAPITALISED_LETTERS + " capitalised letters", () => {
+        expect(() => { myTestUser.password = "my very long password test with numbers1" }).toThrow("Property \"password\" has to contain at least " + User.PASSWORD_MIN_NUMBER_OF_CAPITALISED_LETTERS + " capitalised letters");
+        expect(() => { myTestUser.password = "my very long password test with numbers1" }).toThrow(ValidationError);
+    });
+
+    test("User cannot set a password without at least " + User.PASSWORD_MIN_NUMBER_OF_LETTERS + " letters", () => {
+        expect(() => { myTestUser.password = "ad123 4654 444888" }).toThrow("Property \"password\" has to contain at least " + User.PASSWORD_MIN_NUMBER_OF_LETTERS + " letters");
+        expect(() => { myTestUser.password = "ad123 4654 444888" }).toThrow(ValidationError);
+    });
+
+    test("User cannot set a password without at least " + User.PASSWORD_MIN_NUMBER_OF_NUMBERS + " numbers", () => {
+        expect(() => { myTestUser.password = "adsdfs sdfsdfsdfsd sdf" }).toThrow("Property \"password\" has to contain at least " + User.PASSWORD_MIN_NUMBER_OF_NUMBERS + " numbers");
+        expect(() => { myTestUser.password = "adsdfs sdfsdfsdfsd sdf" }).toThrow(ValidationError);
+    });
+
     test("User can set and get passwords", () => {
-        myTestUser.password = "My Very Long Password Test With Numbers";
-        expect(bcrypt.compareSync("My Very Long Password Test With Numbers", myTestUser.password)).toBe(true);
+        myTestUser.password = "My Very Long Password Test With Numbers1";
+        expect(bcrypt.compareSync("My Very Long Password Test With Numbers1", myTestUser.password)).toBe(true);
     });
 
     test("User can set and get first names", () => {

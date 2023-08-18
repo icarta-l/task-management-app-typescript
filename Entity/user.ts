@@ -17,6 +17,12 @@ module.exports = class User implements UserInterface {
     static USERNAME_MIN_LENGTH: number = 3;
     static USERNAME_MAX_LENGTH: number = 20;
 
+    static PASSWORD_MIN_LENGTH: number = 10;
+    static PASSWORD_MAX_LENGTH: number = 55;
+    static PASSWORD_MIN_NUMBER_OF_CAPITALISED_LETTERS: number = 1;
+    static PASSWORD_MIN_NUMBER_OF_LETTERS: number = 3;
+    static PASSWORD_MIN_NUMBER_OF_NUMBERS: number = 1;
+
     private _id: number = 0;
     private _username: string = "";
     private _password: string = "";
@@ -48,9 +54,23 @@ module.exports = class User implements UserInterface {
         }
     }
 
-    private usernameIsValid(username:string): boolean
+    protected getUsernameValidationOptions(): object
     {
-        if(this._validator.stringIsLongEnough(username, User.USERNAME_MIN_LENGTH, "username") && this._validator.stringIsShortEnough(username, User.USERNAME_MAX_LENGTH, "username") && this._validator.stringHasOnlyLettersAndNumbers(username, "username")) {
+        return {
+            stringIsLongEnough: {
+                length: User.USERNAME_MIN_LENGTH
+            },
+            stringIsShortEnough: {
+                length: User.USERNAME_MAX_LENGTH
+            },
+            stringHasOnlyLettersAndNumbers: {},
+            stringStartsWithALetter: {}
+        };
+    }
+
+    protected usernameIsValid(username: string): boolean
+    {
+        if (this._validator.validateString(username, this.getUsernameValidationOptions(), "username")) {
             return true;
         } else {
             return false;
@@ -65,11 +85,44 @@ module.exports = class User implements UserInterface {
     public set password(password: string)
     {
         // TODO: Implement password check. Must be at least 10 characters long and
-        //       be composed of at least 3 letters, 1 number and 1 special character.
-        this._password = this.hashPassword(password);
+        //       be composed of at least 3 letters, 1 capitalised letter, 1 number 
+        //       and 1 special character.
+        if (this.passwordIsValid(password)) {
+            this._password = this.hashPassword(password);
+        }
     }
 
-    private hashPassword(password: string): string
+    protected getPasswordValidationOptions(): object
+    {
+        return {
+            stringIsLongEnough: {
+                length: User.PASSWORD_MIN_LENGTH
+            },
+            stringIsShortEnough: {
+                length: User.PASSWORD_MAX_LENGTH
+            },
+            stringHasAtLeastNLetters: {
+                numberOfLetters: User.PASSWORD_MIN_NUMBER_OF_LETTERS
+            },
+            stringHasAtLeastNNumbers: {
+                numberOfNumbers: User.PASSWORD_MIN_NUMBER_OF_NUMBERS
+            },
+            stringHasAtLeastNCapitalisedLetters: {
+                numberOfCapitalisedLetters: User.PASSWORD_MIN_NUMBER_OF_CAPITALISED_LETTERS
+            }
+        };
+    }
+
+    protected passwordIsValid(password: string): boolean
+    {
+        if (this._validator.validateString(password, this.getPasswordValidationOptions(), "password")) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    protected hashPassword(password: string): string
     {
         return bcrypt.hashSync(password, this._saltRound)
     }

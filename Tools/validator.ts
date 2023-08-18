@@ -6,6 +6,10 @@ interface ValidatorInterface {
     stringHasOnlyLetters(stringToCheck: string, propertyName: string): boolean;
     stringHasOnlyLettersAndNumbers(stringToCheck: string, propertyName: string): boolean;
     stringStartsWithALetter(stringToCheck: string, propertyName: string): boolean;
+    stringHasAtLeastNLetters(stringToCheck: string, numberOfLetters: number, propertyName: string): boolean;
+    stringHasAtLeastNNumbers(stringToCheck: string, numberOfNumbers: number, propertyName: string): boolean;
+    stringHasAtLeastNCapitalisedLetters(stringToCheck: string, numberOfCapitalisedLetters: number, propertyName: string): boolean;
+    validateString(stringToCheck: string, options: object, propertyName: string): boolean;
 }
 
 module.exports = class Validator implements ValidatorInterface {
@@ -57,6 +61,79 @@ module.exports = class Validator implements ValidatorInterface {
 
         if (stringToCheck.match(regex) === null) {
             throw new ValidationError("Property \"" + propertyName + "\" has to start with a letter");
+        }
+
+        return true;
+    }
+
+    public stringHasAtLeastNLetters(stringToCheck: string, numberOfLetters: number, propertyName: string): boolean 
+    {
+        const regex = /[a-zA-Z]{1}/gm;
+        const matches: string[] | null = stringToCheck.match(regex);
+        if (matches === null || matches.length < numberOfLetters) {
+            throw new ValidationError("Property \"" + propertyName + "\" has to contain at least " + numberOfLetters + " letters");
+        }
+
+        return true;
+    }
+
+    public stringHasAtLeastNNumbers(stringToCheck: string, numberOfNumbers: number, propertyName: string): boolean 
+    {
+        const regex = /[0-9]{1}/gm;
+        const matches: string[] | null = stringToCheck.match(regex);
+        if (matches === null || matches.length < numberOfNumbers) {
+            throw new ValidationError("Property \"" + propertyName + "\" has to contain at least " + numberOfNumbers + " numbers");
+        }
+
+        return true;
+    }
+
+    public stringHasAtLeastNCapitalisedLetters(stringToCheck: string, numberOfCapitalisedLetters: number, propertyName: string): boolean 
+    {
+        const regex = /[A-Z]{1}/gm;
+        const matches: string[] | null = stringToCheck.match(regex);
+        if (matches === null || matches.length < numberOfCapitalisedLetters) {
+            throw new ValidationError("Property \"" + propertyName + "\" has to contain at least " + numberOfCapitalisedLetters + " capitalised letters");
+        }
+
+        return true;
+    }
+
+    public validateString(stringToCheck: string, options: object, propertyName: string): boolean 
+    {
+        for (const [key, value] of Object.entries(options)) {
+            switch (key) {
+                case "stringIsLongEnough":
+                    this.stringIsLongEnough(stringToCheck, value.length, propertyName);
+                    break;
+
+                case "stringIsShortEnough":
+                    this.stringIsShortEnough(stringToCheck, value.length, propertyName);
+                    break;
+
+                case "stringHasOnlyLetters":
+                    this.stringHasOnlyLetters(stringToCheck, propertyName);
+
+                case "stringHasOnlyLettersAndNumbers":
+                    this.stringHasOnlyLettersAndNumbers(stringToCheck, propertyName);
+                    break;
+
+                case "stringStartsWithALetter":
+                    this.stringStartsWithALetter(stringToCheck, propertyName);
+                    break;
+
+                case "stringHasAtLeastNLetters":
+                    this.stringHasAtLeastNLetters(stringToCheck, value.numberOfLetters, propertyName);
+                    break;
+
+                case "stringHasAtLeastNNumbers":
+                    this.stringHasAtLeastNNumbers(stringToCheck, value.numberOfNumbers, propertyName);
+                    break;
+
+                case "stringHasAtLeastNCapitalisedLetters":
+                    this.stringHasAtLeastNCapitalisedLetters(stringToCheck, value.numberOfCapitalisedLetters, propertyName);
+                    break;
+            }
         }
 
         return true;

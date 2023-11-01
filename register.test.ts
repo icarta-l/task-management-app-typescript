@@ -14,6 +14,7 @@ describe("POST", () => {
     const response = await app.post("/register")
       .send({
         username: "User Test",
+        email: "test@gmail.com",
         password: "my test password",
         firstName: "Lorem",
         lastName: "Ipsum"

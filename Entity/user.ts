@@ -10,6 +10,8 @@ interface UserInterface extends Entity {
     set firstName(firstName: string);
     get lastName(): string;
     set lastName(lastName: string);
+    get email(): string;
+    set email(email: string);
     computeFullName(): string;
 }
 
@@ -22,12 +24,17 @@ module.exports = class User implements UserInterface {
     static PASSWORD_MIN_NUMBER_OF_CAPITALISED_LETTERS: number = 1;
     static PASSWORD_MIN_NUMBER_OF_LETTERS: number = 3;
     static PASSWORD_MIN_NUMBER_OF_NUMBERS: number = 1;
+    static PASSWORD_MIN_NUMBER_OF_SPECIAL_CHARACTERS: number = 1;
+
+    static NAMES_MIN_LENGTH: number = 3;
+    static NAMES_MAX_LENGTH: number = 50;
 
     private _id: number = 0;
     private _username: string = "";
     private _password: string = "";
     private _firstName: string = "";
     private _lastName: string = "";
+    private _email: string = "";
     
     private _saltRound: number = 10;
     private _validator: ValidatorInterface = new Validator();
@@ -84,9 +91,6 @@ module.exports = class User implements UserInterface {
 
     public set password(password: string)
     {
-        // TODO: Implement password check. Must be at least 10 characters long and
-        //       be composed of at least 3 letters, 1 capitalised letter, 1 number 
-        //       and 1 special character.
         if (this.passwordIsValid(password)) {
             this._password = this.hashPassword(password);
         }
@@ -109,6 +113,9 @@ module.exports = class User implements UserInterface {
             },
             stringHasAtLeastNCapitalisedLetters: {
                 numberOfCapitalisedLetters: User.PASSWORD_MIN_NUMBER_OF_CAPITALISED_LETTERS
+            },
+            stringHasAtLeastNSpecialCharacters: {
+                numberOfSpecialCharacter: User.PASSWORD_MIN_NUMBER_OF_SPECIAL_CHARACTERS
             }
         };
     }
@@ -134,9 +141,9 @@ module.exports = class User implements UserInterface {
 
     public set firstName(firstName: string)
     {
-        // TODO: Implement first name check. Must be at least 3 characters long and
-        //       be composed exclusively of letters.
-        this._firstName = firstName;
+        if (this.nameIsValid(firstName, "firstName")) {
+            this._firstName = firstName;
+        }
     }
 
     public get lastName(): string
@@ -146,13 +153,56 @@ module.exports = class User implements UserInterface {
 
     public set lastName(lastName: string)
     {
-        // TODO: Implement first name check. Must be at least 3 characters long and
-        //       be composed exclusively of letters.
-        this._lastName = lastName;
+        if (this.nameIsValid(lastName, "lastName")) {
+            this._lastName = lastName;
+        }
+    }
+
+    protected getNamesValidationOptions(): object
+    {
+        return {
+            stringIsLongEnough: {
+                length: User.NAMES_MIN_LENGTH
+            },
+            stringIsShortEnough: {
+                length: User.NAMES_MAX_LENGTH
+            },
+            stringHasOnlyLetters: {}
+        };
+    }
+
+    protected nameIsValid(name: string, propertyName: string): boolean
+    {
+        if (this._validator.validateString(name, this.getNamesValidationOptions(), propertyName)) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     public computeFullName(): string
     {
         return this.firstName + " " + this.lastName;
+    }
+
+    public get email(): string
+    {
+        return this._email;
+    }
+
+    public set email(email: string)
+    {
+        if (this.emailIsValid(email)) {
+            this._email = email;
+        }
+    }
+
+    protected emailIsValid(email: string): boolean
+    {
+        if (this._validator.validateString(email, {stringIsEmail: {}}, "email")) {
+            return true;
+        } else {
+            return false;
+        }
     }
 }

@@ -66,9 +66,52 @@ describe("Validator class tests", () => {
         expect(() => { myTestValidator.stringHasAtLeastNLetters("123", 4, "name") }).toThrow(ValidationError);
     });
 
+    test("Validator can check if string has at least one capitalised letter", () => {
+        expect(myTestValidator.stringHasAtLeastNCapitalisedLetters("Adv123", 1, "name")).toBe(true);
+    });
+
     test("Validator throw error if string doesn't contain at least one capitalised letter", () => {
         expect(() => { myTestValidator.stringHasAtLeastNCapitalisedLetters("2bcdefghi1234q", 2, "name") }).toThrow("Property \"name\" has to contain at least " + 2 + " capitalised letters");
         expect(() => { myTestValidator.stringHasAtLeastNCapitalisedLetters("2bcdefghi1234q", 2, "name") }).toThrow(ValidationError);
+    });
+
+    test("Validator can check if string has at least one special character", () => {
+        expect(myTestValidator.stringHasAtLeastNSpecialCharacters("Adv123&", 1, "name")).toBe(true);
+    });
+
+    test("Validator throw error if string doesn't contain at least one special character", () => {
+        expect(() => { myTestValidator.stringHasAtLeastNSpecialCharacters("2bcdefghi1234q", 1, "name") }).toThrow("Property \"name\" has to contain at least " + 1 + " special character");
+        expect(() => { myTestValidator.stringHasAtLeastNSpecialCharacters("2bcdefghi1234q", 1, "name") }).toThrow(ValidationError);
+    });
+
+    test("Validator throw error if email string has wrong format", () => {
+        expect(() => { myTestValidator.stringIsEmail("abc-@mail.com", "email") }).toThrow("Property \"email\" doesn't have a valid email format");
+        expect(() => { myTestValidator.stringIsEmail("abc-@mail.com", "email") }).toThrow(ValidationError);
+
+        expect(() => { myTestValidator.stringIsEmail("abc..def@mail.com", "email") }).toThrow("Property \"email\" doesn't have a valid email format");
+        expect(() => { myTestValidator.stringIsEmail("abc..def@mail.com", "email") }).toThrow(ValidationError);
+
+        expect(() => { myTestValidator.stringIsEmail(".abc@mail.com", "email") }).toThrow("Property \"email\" doesn't have a valid email format");
+        expect(() => { myTestValidator.stringIsEmail(".abc@mail.com", "email") }).toThrow(ValidationError);
+
+        expect(() => { myTestValidator.stringIsEmail("abc#def@mail.com", "email") }).toThrow("Property \"email\" doesn't have a valid email format");
+        expect(() => { myTestValidator.stringIsEmail("abc#def@mail.com", "email") }).toThrow(ValidationError);
+
+        expect(() => { myTestValidator.stringIsEmail("abc.def@mail.c", "email") }).toThrow("Property \"email\" doesn't have a valid email format");
+        expect(() => { myTestValidator.stringIsEmail("abc.def@mail.c", "email") }).toThrow(ValidationError);
+
+        expect(() => { myTestValidator.stringIsEmail("abc.def@mail#archive.com", "email") }).toThrow("Property \"email\" doesn't have a valid email format");
+        expect(() => { myTestValidator.stringIsEmail("abc.def@mail#archive.com", "email") }).toThrow(ValidationError);
+
+        expect(() => { myTestValidator.stringIsEmail("abc.def@mail", "email") }).toThrow("Property \"email\" doesn't have a valid email format");
+        expect(() => { myTestValidator.stringIsEmail("abc.def@mail", "email") }).toThrow(ValidationError);
+
+        expect(() => { myTestValidator.stringIsEmail("abc.def@mail..com", "email") }).toThrow("Property \"email\" doesn't have a valid email format");
+        expect(() => { myTestValidator.stringIsEmail("abc.def@mail..com", "email") }).toThrow(ValidationError);
+    });
+
+    test("Validator can check if email string is valid", () => {
+        expect(myTestValidator.stringIsEmail("test@email.com", "email")).toBe(true);
     });
 
     test("Validator can check several rules at a time", () => {
@@ -117,5 +160,46 @@ describe("Validator class tests", () => {
         expect(() => { myTestValidator.validateString("2bcdefghi1234q", optionsLettersAndNumbersthatStartsWithALetter, "name") }).toThrow(ValidationError);
 
         expect(myTestValidator.validateString("abcdefghi1234q", optionsLettersAndNumbersthatStartsWithALetter, "name")).toBe(true);
+
+        const optionsMinLettersAndMinNumbersWithMinCapitalisedLettersAndSpecialCharacters: object = {
+            stringIsLongEnough: {
+                length: 3
+            },
+            stringIsShortEnough: {
+                length: 20
+            },
+            stringHasAtLeastNLetters: {
+                numberOfLetters: 3
+            },
+            stringHasAtLeastNNumbers: {
+                numberOfNumbers: 4
+            },
+            stringHasAtLeastNCapitalisedLetters: {
+                numberOfCapitalisedLetters: 2
+            },
+            stringHasAtLeastNSpecialCharacters: {
+                numberOfSpecialCharacter: 3
+            }
+        };
+
+        expect(() => { myTestValidator.validateString("ab", optionsMinLettersAndMinNumbersWithMinCapitalisedLettersAndSpecialCharacters, "name") }).toThrow("Property \"name\" has to be at least 3 characters long");
+        expect(() => { myTestValidator.validateString("ab", optionsMinLettersAndMinNumbersWithMinCapitalisedLettersAndSpecialCharacters, "name") }).toThrow(ValidationError);
+
+        expect(() => { myTestValidator.validateString("abSDFsdfsdfsdfsdsddsfsdfsadfasdf", optionsMinLettersAndMinNumbersWithMinCapitalisedLettersAndSpecialCharacters, "name") }).toThrow("Property \"name\" cannot be longer than 20 characters long");
+        expect(() => { myTestValidator.validateString("abSDFsdfsdfsdfsdsddsfsdfsadfasdf", optionsMinLettersAndMinNumbersWithMinCapitalisedLettersAndSpecialCharacters, "name") }).toThrow(ValidationError);
+
+        expect(() => { myTestValidator.validateString("2q1321321a", optionsMinLettersAndMinNumbersWithMinCapitalisedLettersAndSpecialCharacters, "name") }).toThrow("Property \"name\" has to contain at least 3 letters");
+        expect(() => { myTestValidator.validateString("2q1321321a", optionsMinLettersAndMinNumbersWithMinCapitalisedLettersAndSpecialCharacters, "name") }).toThrow(ValidationError);
+
+        expect(() => { myTestValidator.validateString("asdfasdf321", optionsMinLettersAndMinNumbersWithMinCapitalisedLettersAndSpecialCharacters, "name") }).toThrow("Property \"name\" has to contain at least 4 numbers");
+        expect(() => { myTestValidator.validateString("asdfasdf321", optionsMinLettersAndMinNumbersWithMinCapitalisedLettersAndSpecialCharacters, "name") }).toThrow(ValidationError);
+
+        expect(() => { myTestValidator.validateString("4Asdfasdf321", optionsMinLettersAndMinNumbersWithMinCapitalisedLettersAndSpecialCharacters, "name") }).toThrow("Property \"name\" has to contain at least 2 capitalised letters");
+        expect(() => { myTestValidator.validateString("4Asdfasdf321", optionsMinLettersAndMinNumbersWithMinCapitalisedLettersAndSpecialCharacters, "name") }).toThrow(ValidationError);
+
+        expect(() => { myTestValidator.validateString("4ASdfasdf321", optionsMinLettersAndMinNumbersWithMinCapitalisedLettersAndSpecialCharacters, "name") }).toThrow("Property \"name\" has to contain at least 3 special characters");
+        expect(() => { myTestValidator.validateString("4ASdfasdf321", optionsMinLettersAndMinNumbersWithMinCapitalisedLettersAndSpecialCharacters, "name") }).toThrow(ValidationError);
+
+        expect(myTestValidator.validateString("4ASdf& !asdf321", optionsMinLettersAndMinNumbersWithMinCapitalisedLettersAndSpecialCharacters, "name")).toBe(true);
     });
 });

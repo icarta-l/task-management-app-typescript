@@ -75,14 +75,49 @@ describe("User class tests", () => {
         expect(() => { myTestUser.password = "adsdfs sdfsdfsdfsd sdf" }).toThrow(ValidationError);
     });
 
-    test("User can set and get passwords", () => {
-        myTestUser.password = "My Very Long Password Test With Numbers1";
-        expect(bcrypt.compareSync("My Very Long Password Test With Numbers1", myTestUser.password)).toBe(true);
+    test("User cannot set a password without at least " + User.PASSWORD_MIN_NUMBER_OF_SPECIAL_CHARACTERS + " special characters", () => {
+        expect(() => { myTestUser.password = "adsdf1ssdfsdfsdfsdsdF" }).toThrow("Property \"password\" has to contain at least " + User.PASSWORD_MIN_NUMBER_OF_SPECIAL_CHARACTERS + " special characters");
+        expect(() => { myTestUser.password = "adsdf1ssdfsdfsdfsdsdF" }).toThrow(ValidationError);
     });
 
-    test("User can set and get first names", () => {
+    test("User can set and get passwords", () => {
+        myTestUser.password = "My Very Long Password Test With Numbers1&";
+        expect(bcrypt.compareSync("My Very Long Password Test With Numbers1&", myTestUser.password)).toBe(true);
+    });
+
+    test("User cannot set firstnames without at least " + User.NAMES_MIN_LENGTH + " letters", () => {
+        expect(() => { myTestUser.firstName = "ab" }).toThrow("Property \"firstName\" has to be at least " + User.NAMES_MIN_LENGTH + " characters long");
+        expect(() => { myTestUser.firstName = "ab" }).toThrow(ValidationError);
+    });
+
+    test("User cannot set firstnames with more than " + User.NAMES_MAX_LENGTH + " letters", () => {
+        expect(() => { myTestUser.firstName = "asdfasdfasdfasdffsdfasdfòasdlfkjsaòdlfksajdòflksadfsdlfkasdòf" }).toThrow("Property \"firstName\" cannot be longer than " + User.NAMES_MAX_LENGTH + " characters long");
+        expect(() => { myTestUser.firstName = "asdfasdfasdfasdffsdfasdfòasdlfkjsaòdlfksajdòflksadfsdlfkasdòf" }).toThrow(ValidationError);
+    });
+
+    test("User cannot set firstnames with numbers", () => {
+        expect(() => { myTestUser.firstName = "abv2" }).toThrow("Property \"firstName\" has to be letters only");
+        expect(() => { myTestUser.firstName = "abv2" }).toThrow(ValidationError);
+    });
+
+    test("User can set and get firstnames", () => {
         myTestUser.firstName = "Lorem";
         expect(myTestUser.firstName).toBe("Lorem");
+    });
+
+    test("User cannot set lastnames without at least " + User.NAMES_MIN_LENGTH + " letters", () => {
+        expect(() => { myTestUser.lastName = "ab" }).toThrow("Property \"lastName\" has to be at least " + User.NAMES_MIN_LENGTH + " characters long");
+        expect(() => { myTestUser.lastName = "ab" }).toThrow(ValidationError);
+    });
+
+    test("User cannot set lastnames with more than " + User.NAMES_MAX_LENGTH + " letters", () => {
+        expect(() => { myTestUser.lastName = "asdfasdfasdfasdffsdfasdfòasdlfkjsaòdlfksajdòflksadfsdlfkasdòf" }).toThrow("Property \"lastName\" cannot be longer than " + User.NAMES_MAX_LENGTH + " characters long");
+        expect(() => { myTestUser.lastName = "asdfasdfasdfasdffsdfasdfòasdlfkjsaòdlfksajdòflksadfsdlfkasdòf" }).toThrow(ValidationError);
+    });
+
+    test("User cannot set lastnames with numbers", () => {
+        expect(() => { myTestUser.lastName = "abv2" }).toThrow("Property \"lastName\" has to be letters only");
+        expect(() => { myTestUser.lastName = "abv2" }).toThrow(ValidationError);
     });
 
     test("User can set and get last names", () => {
@@ -92,5 +127,36 @@ describe("User class tests", () => {
 
     test("User can compute full names", () => {
         expect(myTestUser.computeFullName()).toBe("Lorem Ipsum");
+    });
+
+    test("User cannot set email with wrong format", () => {
+        expect(() => { myTestUser.email = "abc-@mail.com" }).toThrow("Property \"email\" doesn't have a valid email format");
+        expect(() => { myTestUser.email = "abc-@mail.com" }).toThrow(ValidationError);
+
+        expect(() => { myTestUser.email = "abc..def@mail.com" }).toThrow("Property \"email\" doesn't have a valid email format");
+        expect(() => { myTestUser.email = "abc..def@mail.com" }).toThrow(ValidationError);
+
+        expect(() => { myTestUser.email = ".abc@mail.com" }).toThrow("Property \"email\" doesn't have a valid email format");
+        expect(() => { myTestUser.email = ".abc@mail.com" }).toThrow(ValidationError);
+
+        expect(() => { myTestUser.email = "abc#def@mail.com" }).toThrow("Property \"email\" doesn't have a valid email format");
+        expect(() => { myTestUser.email = "abc#def@mail.com" }).toThrow(ValidationError);
+
+        expect(() => { myTestUser.email = "abc.def@mail.c" }).toThrow("Property \"email\" doesn't have a valid email format");
+        expect(() => { myTestUser.email = "abc.def@mail.c" }).toThrow(ValidationError);
+
+        expect(() => { myTestUser.email = "abc.def@mail#archive.com" }).toThrow("Property \"email\" doesn't have a valid email format");
+        expect(() => { myTestUser.email = "abc.def@mail#archive.com" }).toThrow(ValidationError);
+
+        expect(() => { myTestUser.email = "abc.def@mail" }).toThrow("Property \"email\" doesn't have a valid email format");
+        expect(() => { myTestUser.email = "abc.def@mail" }).toThrow(ValidationError);
+
+        expect(() => { myTestUser.email = "abc.def@mail..com" }).toThrow("Property \"email\" doesn't have a valid email format");
+        expect(() => { myTestUser.email = "abc.def@mail..com" }).toThrow(ValidationError);
+    });
+
+    test("User can set and get email", () => {
+        myTestUser.email = "test@email.com";
+        expect(myTestUser.email).toBe("test@email.com");
     });
 });

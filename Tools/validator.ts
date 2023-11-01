@@ -13,7 +13,8 @@ interface ValidatorInterface {
 }
 
 module.exports = class Validator implements ValidatorInterface {
-    static AUTHORIZED_SPECIAL_CHARACTERS: RegExp = /~`!@#$%^&*()_\-+={\[}\]\|\\:;\"'<,>.?\/\ /gm;
+    static AUTHORIZED_SPECIAL_CHARACTERS: RegExp = /[~`!@#$%^&*()_\-+={\[}\]\|\\:;\"'<,>.?\/\ ]/gm;
+    static EMAIL_FORMAT: RegExp = /^[a-z0-9]+(?:[\.]{1}(?=[a-z]+))?(?:[\-]{1}(?=[a-z]+))?(?:[_]{1}(?=[a-z]+))?[a-z0-9]*@[a-z0-9]+(?:[\-]{1}(?=[a-z]+))?[a-z]*[\.]{1}[a-z0-9]{2,}$/gm
     
     public stringIsLongEnough(stringToCheck: string, length: number, propertyName: string): boolean 
     {
@@ -99,6 +100,24 @@ module.exports = class Validator implements ValidatorInterface {
         return true;
     }
 
+    public stringHasAtLeastNSpecialCharacters(stringToCheck: string, numberOfSpecialCharacter: number, propertyName: string): boolean
+    {   
+        const matches: string[] | null = stringToCheck.match(Validator.AUTHORIZED_SPECIAL_CHARACTERS);
+        if (matches === null || matches.length < numberOfSpecialCharacter) {
+            throw new ValidationError("Property \"" + propertyName + "\" has to contain at least " + numberOfSpecialCharacter + " special characters");
+        }
+        return true;
+    }
+
+    public stringIsEmail(stringToCheck: string, propertyName: string): boolean
+    {
+        const matches: string[] | null = stringToCheck.match(Validator.EMAIL_FORMAT);
+        if (matches === null) {
+            throw new ValidationError("Property \"" + propertyName + "\" doesn't have a valid email format");
+        }
+        return true;
+    }
+
     public validateString(stringToCheck: string, options: object, propertyName: string): boolean 
     {
         for (const [key, value] of Object.entries(options)) {
@@ -132,6 +151,14 @@ module.exports = class Validator implements ValidatorInterface {
 
                 case "stringHasAtLeastNCapitalisedLetters":
                     this.stringHasAtLeastNCapitalisedLetters(stringToCheck, value.numberOfCapitalisedLetters, propertyName);
+                    break;
+
+                case "stringHasAtLeastNSpecialCharacters":
+                    this.stringHasAtLeastNSpecialCharacters(stringToCheck, value.numberOfSpecialCharacter, propertyName);
+                    break;
+                    
+                case "stringIsEmail":
+                    this.stringIsEmail(stringToCheck, propertyName);
                     break;
             }
         }

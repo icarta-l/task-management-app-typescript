@@ -1,7 +1,7 @@
 "use strict";
 var _a;
 const bcrypt = require('bcrypt');
-const Validator = require("../Tools/validator.ts");
+const Validator = require("../Tools/validator.js");
 module.exports = (_a = class User {
         constructor() {
             this._id = 0;

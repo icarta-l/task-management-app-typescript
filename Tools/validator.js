@@ -1,6 +1,6 @@
 "use strict";
 var _a;
-const ValidationError = require("../Exception/validationError.ts");
+const ValidationError = require("../Exception/validationError.js");
 module.exports = (_a = class Validator {
         stringIsLongEnough(stringToCheck, length, propertyName) {
             if (stringToCheck.length < length) {

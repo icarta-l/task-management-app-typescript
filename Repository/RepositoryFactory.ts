@@ -1,3 +1,5 @@
+const UserRepository = require("./UserRepository.js");
+
 module.exports = class RepositoryFactory implements RepositoryFactoryInterface {
     public getRepository(classname: string): Repository|false
     {

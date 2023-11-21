@@ -1,5 +1,5 @@
-import {Client} from "pg";
-import "dotenv/config"
+const Client = require("pg").Client;
+require("dotenv/config");
 
 module.exports = class PostgreSQLDatabase implements DatabaseInterface {
     private postgreSQLclient: Client|null = null;
@@ -14,19 +14,19 @@ module.exports = class PostgreSQLDatabase implements DatabaseInterface {
         return PostgreSQLDatabase.instance;
     }
 
-    public connect(host: string, user: string, password: string, port: number, database_name: string): void 
+    public connect(host: string|undefined, user: string|undefined, password: string|undefined, port: number|undefined, database_name: string|undefined): void 
     {
         this.postgreSQLclient = new Client({
-            user: process.env.POSTGRESQL_USER,
-            host: process.env.POSTGRESQL_HOST,
-            database: process.env.POSTGRESQL_DATABASE,
-            password: process.env.POSTGRESQL_PASSWORD,
-            port: Number(process.env.POSTGRESQL_PORT)
+            user: user,
+            host: host,
+            database: database_name,
+            password: password,
+            port: port
         });
     }
 
-    public async getRows(query: string): Promise<object[]>
+    public async query(query: string): Promise<any>
     {
-
+        return await this.postgreSQLclient.query(query);
     }
 }

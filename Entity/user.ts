@@ -1,5 +1,5 @@
 const bcrypt = require('bcrypt');
-const Validator = require("../Tools/validator.ts");
+const Validator = require("../Tools/validator.js");
 
 interface UserInterface extends Entity {
     get username(): string;

@@ -51,8 +51,14 @@ module.exports = (_a = class User {
             return this._password;
         }
         set password(password) {
+            this._password = password;
+        }
+        processAndHashPassword(password) {
             if (this.passwordIsValid(password)) {
-                this._password = this.hashPassword(password);
+                return this.hashPassword(password);
+            }
+            else {
+                return false;
             }
         }
         getPasswordValidationOptions() {

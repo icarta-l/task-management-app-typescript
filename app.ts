@@ -1,11 +1,7 @@
 import express, { Express, Request, Response } from 'express';
 import bodyParser, {BodyParser} from 'body-parser';
 import { NextHandleFunction } from "connect";
-
-const PostgreSQLDatabase = require("./Database/PostgreSQLDatabase.js");
-const postgreSQLDatabase = PostgreSQLDatabase.getInstance();
-
-postgreSQLDatabase.connect(process.env.POSTGRESQL_HOST, process.env.POSTGRESQL_USER, process.env.POSTGRESQL_PASSWORD, Number(process.env.POSTGRESQL_PORT), process.env.POSTGRESQL_DATABASE);
+import "dotenv/config";
 
 const app: Express = express();
 const port: number = 3000;
@@ -21,18 +17,19 @@ app.post("/register", jsonParser, (request: Request, response: Response) => {
 
     user.firstName = request.body.firstName;
     user.lastName = request.body.lastName;
-    user.password = request.body.password;
+    user.password = user.processAndHashPassword(request.body.password);
     user.username = request.body.username;
     user.email = request.body.email;
 
     const userRepository = new RepositoryFactory().getRepository("User");
     userRepository.create(user);
 
-    response.send("POST request to \"register\" route");
+    response.status(201).send("POST request to \"register\" route");
 });
 
-app.listen(port, () => {
+const server = app.listen(port, () => {
     console.log(`Example app listening on port ${port}`)
 });
 
-module.exports = app;
+module.exports.App = app;
+module.exports.Server = server;

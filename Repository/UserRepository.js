@@ -9,18 +9,24 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 const User = require("../Entity/user.js");
+const PostgreSQLDatabase = require("../Database/PostgreSQLDatabase.js");
 module.exports = class UserRepository {
+    constructor() {
+        this.databaseConnection = PostgreSQLDatabase.getInstance();
+    }
     getAll() {
         return __awaiter(this, void 0, void 0, function* () {
             const result = yield this.databaseConnection.query("SELECT * FROM app_users");
         });
     }
     hydrateRow(userData) {
-        console.log(userData);
+        console.log("Here inside:", userData);
     }
-    create(entity) {
+    create(user) {
         return __awaiter(this, void 0, void 0, function* () {
-            const result = yield this.databaseConnection.query("INSERT INTO app_users (first_name, last_name, password, username, email) VALUES ($1, $2, $3, $4, $5) RETURNING *");
+            console.log("Here!");
+            const result = yield this.databaseConnection.query("INSERT INTO app_users (first_name, last_name, password, username, email) VALUES ($1, $2, $3, $4, $5) RETURNING *", [user.firstName, user.lastName, user.password, user.username, user.email]);
+            console.log("There!");
             return this.hydrateRow(result);
         });
     }

@@ -10,7 +10,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 var _a;
 const Client = require("pg").Client;
-require("dotenv/config");
 module.exports = (_a = class PostgreSQLDatabase {
         constructor() {
             this.postgreSQLclient = null;
@@ -18,6 +17,7 @@ module.exports = (_a = class PostgreSQLDatabase {
         static getInstance() {
             if (PostgreSQLDatabase.instance === null) {
                 PostgreSQLDatabase.instance = new PostgreSQLDatabase();
+                PostgreSQLDatabase.instance.connect(process.env.POSTGRESQL_HOST, process.env.POSTGRESQL_USER, process.env.POSTGRESQL_PASSWORD, Number(process.env.POSTGRESQL_PORT), process.env.POSTGRESQL_DATABASE);
             }
             return PostgreSQLDatabase.instance;
         }
@@ -29,10 +29,15 @@ module.exports = (_a = class PostgreSQLDatabase {
                 password: password,
                 port: port
             });
+            console.log(password, typeof password);
+            this.postgreSQLclient.connect();
         }
-        query(query) {
+        query(query, values) {
             return __awaiter(this, void 0, void 0, function* () {
-                return yield this.postgreSQLclient.query(query);
+                console.log("Inside there!");
+                const response = yield this.postgreSQLclient.query(query, values);
+                console.log("Response?", response);
+                return response;
             });
         }
     },

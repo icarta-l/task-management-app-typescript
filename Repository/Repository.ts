@@ -1,7 +1,7 @@
 interface Repository {
-    getAll(): Array<Entity>;
+    getAll(): Promise<Entity[]>;
     get(id: number): Entity;
     update(entity: Entity): boolean;
     delete(entity: Entity): boolean;
-    create(entity: Entity): Entity;
+    create(entity: Entity): Promise<Entity>;
 }

@@ -13,6 +13,7 @@ interface UserInterface extends Entity {
     get email(): string;
     set email(email: string);
     computeFullName(): string;
+    processAndHashPassword(password: string): string|false;
 }
 
 module.exports = class User implements UserInterface {
@@ -91,8 +92,15 @@ module.exports = class User implements UserInterface {
 
     public set password(password: string)
     {
+        this._password = password;
+    }
+
+    public processAndHashPassword(password: string): string|false
+    {
         if (this.passwordIsValid(password)) {
-            this._password = this.hashPassword(password);
+            return this.hashPassword(password);
+        } else {
+            return false;
         }
     }
 

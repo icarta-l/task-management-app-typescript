@@ -5,9 +5,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const body_parser_1 = __importDefault(require("body-parser"));
-const PostgreSQLDatabase = require("./Database/PostgreSQLDatabase.js");
-const postgreSQLDatabase = PostgreSQLDatabase.getInstance();
-postgreSQLDatabase.connect(process.env.POSTGRESQL_HOST, process.env.POSTGRESQL_USER, process.env.POSTGRESQL_PASSWORD, Number(process.env.POSTGRESQL_PORT), process.env.POSTGRESQL_DATABASE);
+require("dotenv/config");
 const app = (0, express_1.default)();
 const port = 3000;
 const jsonParser = body_parser_1.default.json();
@@ -19,14 +17,15 @@ app.post("/register", jsonParser, (request, response) => {
     const user = new User();
     user.firstName = request.body.firstName;
     user.lastName = request.body.lastName;
-    user.password = request.body.password;
+    user.password = user.processAndHashPassword(request.body.password);
     user.username = request.body.username;
     user.email = request.body.email;
     const userRepository = new RepositoryFactory().getRepository("User");
     userRepository.create(user);
     response.send("POST request to \"register\" route");
 });
-app.listen(port, () => {
+const server = app.listen(port, () => {
     console.log(`Example app listening on port ${port}`);
 });
-module.exports = app;
+module.exports.App = app;
+module.exports.Server = server;

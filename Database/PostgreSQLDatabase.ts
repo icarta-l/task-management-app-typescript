@@ -1,14 +1,14 @@
 const Client = require("pg").Client;
-require("dotenv/config");
 
 module.exports = class PostgreSQLDatabase implements DatabaseInterface {
-    private postgreSQLclient: Client|null = null;
+    private postgreSQLclient: typeof Client|null = null;
     private static instance: PostgreSQLDatabase|null = null;
 
     public static getInstance(): PostgreSQLDatabase 
     {
         if (PostgreSQLDatabase.instance === null) {
             PostgreSQLDatabase.instance = new PostgreSQLDatabase();
+            PostgreSQLDatabase.instance.connect(process.env.POSTGRESQL_HOST, process.env.POSTGRESQL_USER, process.env.POSTGRESQL_PASSWORD, Number(process.env.POSTGRESQL_PORT), process.env.POSTGRESQL_DATABASE);
         }
 
         return PostgreSQLDatabase.instance;
@@ -23,10 +23,11 @@ module.exports = class PostgreSQLDatabase implements DatabaseInterface {
             password: password,
             port: port
         });
+        this.postgreSQLclient.connect();
     }
 
-    public async query(query: string): Promise<any>
+    public async query(query: string, values: Array<any>|null = null): Promise<any>
     {
-        return await this.postgreSQLclient.query(query);
+        return await this.postgreSQLclient.query(query, values);
     }
 }

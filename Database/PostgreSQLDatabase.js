@@ -17,27 +17,29 @@ module.exports = (_a = class PostgreSQLDatabase {
         static getInstance() {
             if (PostgreSQLDatabase.instance === null) {
                 PostgreSQLDatabase.instance = new PostgreSQLDatabase();
-                PostgreSQLDatabase.instance.connect(process.env.POSTGRESQL_HOST, process.env.POSTGRESQL_USER, process.env.POSTGRESQL_PASSWORD, Number(process.env.POSTGRESQL_PORT), process.env.POSTGRESQL_DATABASE);
             }
             return PostgreSQLDatabase.instance;
         }
         connect(host, user, password, port, database_name) {
-            this.postgreSQLclient = new Client({
-                user: user,
-                host: host,
-                database: database_name,
-                password: password,
-                port: port
+            return __awaiter(this, void 0, void 0, function* () {
+                this.postgreSQLclient = new Client({
+                    user: user,
+                    host: host,
+                    database: database_name,
+                    password: password,
+                    port: port
+                });
+                yield this.postgreSQLclient.connect();
             });
-            console.log(password, typeof password);
-            this.postgreSQLclient.connect();
         }
         query(query, values) {
             return __awaiter(this, void 0, void 0, function* () {
-                console.log("Inside there!");
-                const response = yield this.postgreSQLclient.query(query, values);
-                console.log("Response?", response);
-                return response;
+                return yield this.postgreSQLclient.query(query, values);
+            });
+        }
+        close() {
+            return __awaiter(this, void 0, void 0, function* () {
+                this.postgreSQLclient.end();
             });
         }
     },

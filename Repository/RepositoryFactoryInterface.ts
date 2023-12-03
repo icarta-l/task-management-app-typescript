@@ -1,3 +1,3 @@
 interface RepositoryFactoryInterface {
-    getRepository(classname: string): Repository|false;
+    getRepository(classname: string): Promise<Repository|false>;
 }

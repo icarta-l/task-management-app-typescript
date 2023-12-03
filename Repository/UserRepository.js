@@ -8,26 +8,43 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+Object.defineProperty(exports, "__esModule", { value: true });
 const User = require("../Entity/user.js");
 const PostgreSQLDatabase = require("../Database/PostgreSQLDatabase.js");
 module.exports = class UserRepository {
     constructor() {
         this.databaseConnection = PostgreSQLDatabase.getInstance();
     }
-    getAll() {
+    connect(host, user, password, port, database_name) {
         return __awaiter(this, void 0, void 0, function* () {
-            const result = yield this.databaseConnection.query("SELECT * FROM app_users");
+            yield this.databaseConnection.connect(host, user, password, port, database_name);
         });
     }
-    hydrateRow(userData) {
-        console.log("Here inside:", userData);
+    getAll() {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield this.databaseConnection.query("SELECT * FROM app_users");
+        });
+    }
+    hydrateRow(result) {
+        const userData = result.rows[0];
+        const user = new User();
+        user.username = userData.username;
+        user.password = userData.password;
+        user.firstName = userData.first_name;
+        user.lastName = userData.last_name;
+        user.email = userData.email;
+        user.id = userData.id;
+        return user;
     }
     create(user) {
         return __awaiter(this, void 0, void 0, function* () {
-            console.log("Here!");
             const result = yield this.databaseConnection.query("INSERT INTO app_users (first_name, last_name, password, username, email) VALUES ($1, $2, $3, $4, $5) RETURNING *", [user.firstName, user.lastName, user.password, user.username, user.email]);
-            console.log("There!");
             return this.hydrateRow(result);
+        });
+    }
+    close() {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield this.databaseConnection.close();
         });
     }
 };

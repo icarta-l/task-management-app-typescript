@@ -8,13 +8,12 @@ module.exports = class PostgreSQLDatabase implements DatabaseInterface {
     {
         if (PostgreSQLDatabase.instance === null) {
             PostgreSQLDatabase.instance = new PostgreSQLDatabase();
-            PostgreSQLDatabase.instance.connect(process.env.POSTGRESQL_HOST, process.env.POSTGRESQL_USER, process.env.POSTGRESQL_PASSWORD, Number(process.env.POSTGRESQL_PORT), process.env.POSTGRESQL_DATABASE);
         }
 
         return PostgreSQLDatabase.instance;
     }
 
-    public connect(host: string|undefined, user: string|undefined, password: string|undefined, port: number|undefined, database_name: string|undefined): void 
+    public async connect(host: string, user: string, password: string, port: number, database_name: string): Promise<void> 
     {
         this.postgreSQLclient = new Client({
             user: user,
@@ -23,11 +22,16 @@ module.exports = class PostgreSQLDatabase implements DatabaseInterface {
             password: password,
             port: port
         });
-        this.postgreSQLclient.connect();
+        await this.postgreSQLclient.connect();
     }
 
-    public async query(query: string, values: Array<any>|null = null): Promise<any>
+    public async query(query: string, values?: Array<any>): Promise<any>
     {
         return await this.postgreSQLclient.query(query, values);
+    }
+    
+    public async close(): Promise<void>
+    {
+        this.postgreSQLclient.end();
     }
 }

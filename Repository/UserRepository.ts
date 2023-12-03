@@ -1,3 +1,5 @@
+import type {Repository} from "./Repository.ts";
+
 const User = require("../Entity/user.js");
 const PostgreSQLDatabase = require("../Database/PostgreSQLDatabase.js");
 
@@ -7,6 +9,11 @@ module.exports = class UserRepository implements Repository {
     constructor()
     {
         this.databaseConnection = PostgreSQLDatabase.getInstance();
+    }
+
+    public async connect(host: string, user: string, password: string, port: number, database_name: string): Promise<void>
+    {
+        await this.databaseConnection.connect(host, user, password, port, database_name);
     }
 
     public async getAll(): Promise<Entity[]>
@@ -38,5 +45,10 @@ module.exports = class UserRepository implements Repository {
             [user.firstName, user.lastName, user.password, user.username, user.email]
             );
         return this.hydrateRow(result);
+    }
+
+    public async close(): Promise<void>
+    {
+        await this.databaseConnection.close();
     }
 }

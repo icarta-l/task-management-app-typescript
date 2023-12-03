@@ -1,5 +1,7 @@
 import {beforeAll, afterAll, describe, expect, test} from '@jest/globals';
-import express, { Express, Response } from 'express';
+import "dotenv/config";
+
+const PostgreSQLDatabase = require("./Database/PostgreSQLDatabase.js");
 
 const request = require("supertest");
 
@@ -11,9 +13,13 @@ beforeAll(() => {
   server = require("./app").Server;
 });
 
-afterAll(() => {
+afterAll(async () => {
   app = null;
   server.close();
+  const postgreSQLDatabase = PostgreSQLDatabase.getInstance();
+  await postgreSQLDatabase.connect(process.env.POSTGRESQL_HOST, process.env.POSTGRESQL_USER, process.env.POSTGRESQL_PASSWORD, Number(process.env.POSTGRESQL_PORT), process.env.POSTGRESQL_DATABASE);
+  await postgreSQLDatabase.query("TRUNCATE TABLE app_users, project_members, team_members, user_tasks");
+  await postgreSQLDatabase.close();
 })
 
 describe("POST", () => {
@@ -27,6 +33,7 @@ describe("POST", () => {
         lastName: "Ipsum"
       })
       .set('Accept', 'application/json');
+
       expect(response.status).toEqual(201);
   })
 });

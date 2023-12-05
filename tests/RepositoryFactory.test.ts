@@ -1,7 +1,7 @@
 import {describe, expect, test} from '@jest/globals';
 
-const RepositoryFactory = require("./RepositoryFactory.js");
-const UserRepository = require("./UserRepository.js");
+const RepositoryFactory = require("../Repository/RepositoryFactory.js");
+const UserRepository = require("../Repository/UserRepository.js");
 
 describe("RepositoryFactory class tests", () => {
     const myTestRepositoryFactory = new RepositoryFactory();

@@ -1,6 +1,6 @@
 import {beforeAll, describe, expect, test} from '@jest/globals';
 const bcrypt = require('bcrypt');
-const User = require("./user.js");
+const User = require("../Entity/user.js");
 const ValidationError = require("../Exception/validationError.js");
 
 describe("User class tests", () => {

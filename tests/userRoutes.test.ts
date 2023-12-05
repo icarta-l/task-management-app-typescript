@@ -1,7 +1,7 @@
 import {beforeAll, afterAll, describe, expect, test} from '@jest/globals';
 import "dotenv/config";
 
-const PostgreSQLDatabase = require("./Database/PostgreSQLDatabase.js");
+const PostgreSQLDatabase = require("../Database/PostgreSQLDatabase.js");
 
 const request = require("supertest");
 
@@ -9,8 +9,8 @@ let app: any;
 let server: any;
 
 beforeAll(() => {
-  app = request(require("./app").App);
-  server = require("./app").Server;
+  app = request(require("../app").App);
+  server = require("../app").Server;
 });
 
 afterAll(async () => {
@@ -22,7 +22,7 @@ afterAll(async () => {
   await postgreSQLDatabase.close();
 })
 
-describe("POST", () => {
+describe("POST to register route", () => {
   test("should return a 201 HTTP response", async() => {
     const response = await app.post("/register")
       .send({
@@ -33,7 +33,6 @@ describe("POST", () => {
         lastName: "Ipsum"
       })
       .set('Accept', 'application/json');
-
       expect(response.status).toEqual(201);
   })
 });

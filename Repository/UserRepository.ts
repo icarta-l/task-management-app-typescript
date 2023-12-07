@@ -1,5 +1,3 @@
-import type {Repository} from "./Repository.ts";
-
 const User = require("../Entity/user.js");
 const PostgreSQLDatabase = require("../Database/PostgreSQLDatabase.js");
 
@@ -38,7 +36,7 @@ module.exports = class UserRepository implements Repository {
         return user;
     }
 
-    public async create(user: Entity): Promise<Entity>
+    public async create(user: UserInterface): Promise<UserInterface>
     {
         const result = await this.databaseConnection.query(
             "INSERT INTO app_users (first_name, last_name, password, username, email) VALUES ($1, $2, $3, $4, $5) RETURNING *",

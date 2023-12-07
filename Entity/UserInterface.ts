@@ -12,3 +12,5 @@ interface UserInterface extends Entity {
     computeFullName(): string;
     processAndHashPassword(password: string): string|false;
 }
+
+export type {UserInterface};

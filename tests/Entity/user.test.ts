@@ -1,10 +1,12 @@
-import {beforeAll, describe, expect, test} from '@jest/globals';
+import {describe, expect, test} from '@jest/globals';
+import type {UserInterface} from "../../Entity/UserInterface.js";
+
 const bcrypt = require('bcrypt');
-const User = require("../Entity/user.js");
-const ValidationError = require("../Exception/validationError.js");
+const User = require("Entity/user.js");
+const ValidationError = require("Exception/validationError.js");
 
 describe("User class tests", () => {
-    const myTestUser = new User();
+    const myTestUser: UserInterface = new User();
 
     test("User class exists", () => {
         expect(myTestUser).toBeInstanceOf(User);

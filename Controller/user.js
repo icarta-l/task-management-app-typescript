@@ -16,9 +16,7 @@ class UserController {
         return __awaiter(this, void 0, void 0, function* () {
             switch (request.route.path.replace("/", "")) {
                 case "register":
-                    console.log("Hello again!");
                     yield this.insertUser(request, response);
-                    console.log("Hello again again?!");
                     break;
                 default:
                     response.status(404);
@@ -44,11 +42,9 @@ class UserController {
     }
     insertUser(request, response) {
         return __awaiter(this, void 0, void 0, function* () {
-            console.log("Stop?");
             const user = new User();
             this.getUserPropertyFromRequest(user, request);
             yield this.registerUserInDatabase(user);
-            console.log("Now?");
             response.status(201).send("POST request to \"register\" route");
         });
     }

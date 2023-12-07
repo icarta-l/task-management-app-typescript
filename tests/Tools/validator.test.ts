@@ -1,7 +1,7 @@
 import {describe, expect, test} from '@jest/globals';
 
-const Validator = require("../Tools/validator.js");
-const ValidationError = require("../Exception/validationError.js");
+const Validator = require("Tools/validator.js");
+const ValidationError = require("Exception/validationError.js");
 
 describe("Validator class tests", () => {
     const myTestValidator = new Validator();

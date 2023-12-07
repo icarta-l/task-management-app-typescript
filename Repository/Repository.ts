@@ -7,4 +7,4 @@ interface Repository {
     close(): Promise<void>;
 }
 
-//export type {Repository};
+export type {Repository};

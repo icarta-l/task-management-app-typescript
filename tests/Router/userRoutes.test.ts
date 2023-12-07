@@ -1,7 +1,7 @@
 import {beforeAll, afterAll, describe, expect, test} from '@jest/globals';
 import "dotenv/config";
 
-const PostgreSQLDatabase = require("../Database/PostgreSQLDatabase.js");
+const PostgreSQLDatabase = require("Database/PostgreSQLDatabase.js");
 
 const request = require("supertest");
 
@@ -9,8 +9,8 @@ let app: any;
 let server: any;
 
 beforeAll(() => {
-  app = request(require("../app").App);
-  server = require("../app").Server;
+  app = request(require("app").App);
+  server = require("app").Server;
 });
 
 afterAll(async () => {

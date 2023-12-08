@@ -14,7 +14,7 @@ module.exports = (_a = class User {
             this._validator = new Validator();
         }
         get id() {
-            return this._id;
+            return Number(this._id);
         }
         set id(id) {
             this._id = id;

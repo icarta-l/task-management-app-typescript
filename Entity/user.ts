@@ -27,7 +27,7 @@ module.exports = class User implements UserInterface {
 
     public get id(): number
     {
-        return this._id;
+        return Number(this._id);
     }
 
     public set id(id: number)

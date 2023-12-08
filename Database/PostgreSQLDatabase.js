@@ -13,6 +13,7 @@ const Client = require("pg").Client;
 module.exports = (_a = class PostgreSQLDatabase {
         constructor() {
             this.postgreSQLclient = null;
+            this.isConnected = false;
         }
         static getInstance() {
             if (PostgreSQLDatabase.instance === null) {
@@ -22,14 +23,17 @@ module.exports = (_a = class PostgreSQLDatabase {
         }
         connect(host, user, password, port, database_name) {
             return __awaiter(this, void 0, void 0, function* () {
-                this.postgreSQLclient = new Client({
-                    user: user,
-                    host: host,
-                    database: database_name,
-                    password: password,
-                    port: port
-                });
-                yield this.postgreSQLclient.connect();
+                if (this.isConnected === false) {
+                    this.postgreSQLclient = new Client({
+                        user: user,
+                        host: host,
+                        database: database_name,
+                        password: password,
+                        port: port
+                    });
+                    yield this.postgreSQLclient.connect();
+                    this.isConnected = true;
+                }
             });
         }
         query(query, values) {
@@ -39,7 +43,10 @@ module.exports = (_a = class PostgreSQLDatabase {
         }
         close() {
             return __awaiter(this, void 0, void 0, function* () {
-                this.postgreSQLclient.end();
+                if (this.isConnected === true) {
+                    yield this.postgreSQLclient.end();
+                    this.isConnected = false;
+                }
             });
         }
     },

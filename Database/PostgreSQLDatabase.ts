@@ -3,6 +3,7 @@ const Client = require("pg").Client;
 module.exports = class PostgreSQLDatabase implements DatabaseInterface {
     private postgreSQLclient: typeof Client|null = null;
     private static instance: PostgreSQLDatabase|null = null;
+    private isConnected: boolean = false;
 
     public static getInstance(): PostgreSQLDatabase 
     {
@@ -15,14 +16,17 @@ module.exports = class PostgreSQLDatabase implements DatabaseInterface {
 
     public async connect(host: string, user: string, password: string, port: number, database_name: string): Promise<void> 
     {
-        this.postgreSQLclient = new Client({
-            user: user,
-            host: host,
-            database: database_name,
-            password: password,
-            port: port
-        });
-        await this.postgreSQLclient.connect();
+        if (this.isConnected === false) {
+            this.postgreSQLclient = new Client({
+                user: user,
+                host: host,
+                database: database_name,
+                password: password,
+                port: port
+            });
+            await this.postgreSQLclient.connect();
+            this.isConnected = true;
+        }
     }
 
     public async query(query: string, values?: Array<any>): Promise<any>
@@ -32,6 +36,9 @@ module.exports = class PostgreSQLDatabase implements DatabaseInterface {
     
     public async close(): Promise<void>
     {
-        this.postgreSQLclient.end();
+        if (this.isConnected === true) {
+            await this.postgreSQLclient.end();
+            this.isConnected = false;
+        }
     }
 }

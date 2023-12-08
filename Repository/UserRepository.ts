@@ -14,7 +14,7 @@ module.exports = class UserRepository implements Repository {
         await this.databaseConnection.connect(host, user, password, port, database_name);
     }
 
-    public async getAll(): Promise<Entity[]>
+    public async getAll(): Promise<UserInterface[]>
     {
         return await this.databaseConnection.query("SELECT * FROM app_users");
     }

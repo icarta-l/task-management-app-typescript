@@ -1,5 +1,5 @@
 import {jest, afterAll, describe, expect, test} from '@jest/globals';
-import type {Repository} from "../../Repository/Repository.js";
+import type {UserInterface} from "../../Entity/UserInterface.ts";
 
 require('dotenv').config({ path: '.env.test' });
 
@@ -8,7 +8,7 @@ const UserRepository = require("Repository/UserRepository.js");
 const PostgreSQLDatabase = require("Database/PostgreSQLDatabase.js");
 const User = require("Entity/user.js");
 
-const userRepository = new UserRepository();
+const userRepository: typeof UserRepository = new UserRepository();
 
 afterAll(async () => {
     const postgreSQLDatabase = PostgreSQLDatabase.getInstance();
@@ -44,7 +44,7 @@ describe("UserRepository class tests", () => {
         user.username = "username";
         user.email = "test@gmail.com";
 
-        const registeredUser = await userRepository.create(user);
+        const registeredUser: UserInterface = await userRepository.create(user);
 
         expect(registeredUser).toBeInstanceOf(User);
         expect(registeredUser.id).toBeGreaterThan(0);

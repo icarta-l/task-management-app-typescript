@@ -1,6 +1,9 @@
 const bcrypt = require('bcrypt');
 const Validator = require("../Tools/validator.js");
 
+import type { Request } from 'express';
+import type { UserInterface} from "./UserInterface";
+
 module.exports = class User implements UserInterface {
     static USERNAME_MIN_LENGTH: number = 3;
     static USERNAME_MAX_LENGTH: number = 20;
@@ -197,5 +200,19 @@ module.exports = class User implements UserInterface {
         } else {
             return false;
         }
+    }
+
+    public hydrateFromRequest(user: UserInterface, request: Request): UserInterface
+    {
+        user.firstName = request.body.firstName;
+        user.lastName = request.body.lastName;
+        const password: string|false = user.processAndHashPassword(request.body.password);
+        if (password) {
+            user.password = password;
+        }
+        user.username = request.body.username;
+        user.email = request.body.email;
+
+        return user;
     }
 }

@@ -1,4 +1,9 @@
+import type { Request } from "express";
+import type { Entity } from "./entity.js";
+
 interface UserInterface extends Entity {
+    get id(): number;
+    set id(id: number);
     get username(): string;
     set username(username: string);
     get password(): string;
@@ -11,6 +16,7 @@ interface UserInterface extends Entity {
     set email(email: string);
     computeFullName(): string;
     processAndHashPassword(password: string): string|false;
+    hydrateFromRequest(entity: Entity, request: Request): Entity;
 }
 
 export type {UserInterface};

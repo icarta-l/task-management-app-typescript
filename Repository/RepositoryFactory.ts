@@ -1,5 +1,8 @@
 import "dotenv/config";
 
+import type { RepositoryFactoryInterface } from "./RepositoryFactoryInterface.js";
+import type {Repository} from "./Repository.js";
+
 const UserRepository = require("./UserRepository.js");
 
 module.exports = class RepositoryFactory implements RepositoryFactoryInterface {

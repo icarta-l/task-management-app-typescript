@@ -8,6 +8,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+Object.defineProperty(exports, "__esModule", { value: true });
 const User = require("../Entity/user.js");
 const PostgreSQLDatabase = require("../Database/PostgreSQLDatabase.js");
 module.exports = class UserRepository {
@@ -24,9 +25,8 @@ module.exports = class UserRepository {
             return yield this.databaseConnection.query("SELECT * FROM app_users");
         });
     }
-    hydrateRow(result) {
+    hydrateRow(user, result) {
         const userData = result.rows[0];
-        const user = new User();
         user.username = userData.username;
         user.password = userData.password;
         user.firstName = userData.first_name;
@@ -38,7 +38,7 @@ module.exports = class UserRepository {
     create(user) {
         return __awaiter(this, void 0, void 0, function* () {
             const result = yield this.databaseConnection.query("INSERT INTO app_users (first_name, last_name, password, username, email) VALUES ($1, $2, $3, $4, $5) RETURNING *", [user.firstName, user.lastName, user.password, user.username, user.email]);
-            return this.hydrateRow(result);
+            return this.hydrateRow(new User(), result);
         });
     }
     close() {

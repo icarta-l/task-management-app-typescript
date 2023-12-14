@@ -1,5 +1,6 @@
 "use strict";
 var _a;
+Object.defineProperty(exports, "__esModule", { value: true });
 const bcrypt = require('bcrypt');
 const Validator = require("../Tools/validator.js");
 module.exports = (_a = class User {
@@ -147,6 +148,17 @@ module.exports = (_a = class User {
             else {
                 return false;
             }
+        }
+        hydrateFromRequest(user, request) {
+            user.firstName = request.body.firstName;
+            user.lastName = request.body.lastName;
+            const password = user.processAndHashPassword(request.body.password);
+            if (password) {
+                user.password = password;
+            }
+            user.username = request.body.username;
+            user.email = request.body.email;
+            return user;
         }
     },
     _a.USERNAME_MIN_LENGTH = 3,

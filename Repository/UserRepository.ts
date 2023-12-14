@@ -1,6 +1,11 @@
 const User = require("../Entity/user.js");
 const PostgreSQLDatabase = require("../Database/PostgreSQLDatabase.js");
 
+import type { Repository } from "./Repository.js";
+import type { UserInterface } from "../Entity/UserInterface.js";
+import type { Entity } from "../Entity/entity.js";
+import type { QueryResult } from "pg";
+
 module.exports = class UserRepository implements Repository {
     private databaseConnection: DatabaseInterface;
 
@@ -22,10 +27,10 @@ module.exports = class UserRepository implements Repository {
     update(entity: Entity): boolean;
     delete(entity: Entity): boolean;
 
-    private hydrateRow(result: object): UserInterface
+    private hydrateRow(user: UserInterface, result: QueryResult): UserInterface
     {
-        const userData = result.rows[0];
-        const user = new User();
+        const userData: UserQueryResult = result.rows[0];
+
         user.username = userData.username;
         user.password = userData.password;
         user.firstName = userData.first_name;
@@ -38,11 +43,11 @@ module.exports = class UserRepository implements Repository {
 
     public async create(user: UserInterface): Promise<UserInterface>
     {
-        const result = await this.databaseConnection.query(
+        const result: QueryResult = await this.databaseConnection.query(
             "INSERT INTO app_users (first_name, last_name, password, username, email) VALUES ($1, $2, $3, $4, $5) RETURNING *",
             [user.firstName, user.lastName, user.password, user.username, user.email]
             );
-        return this.hydrateRow(result);
+        return this.hydrateRow(new User(), result);
     }
 
     public async close(): Promise<void>

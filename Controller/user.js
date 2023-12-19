@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const User = require("../Entity/user.js");
+const User = require("../Entity/User.js");
 const RepositoryFactory = require("../Repository/RepositoryFactory.js");
 class UserController {
     processAction(request, response) {

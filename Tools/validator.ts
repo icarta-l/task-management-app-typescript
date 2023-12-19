@@ -1,4 +1,4 @@
-const ValidationError = require("../Exception/validationError.js");
+const ValidationError = require("../Exception/ValidationError.js");
 
 interface ValidatorInterface {
     stringIsLongEnough(stringToCheck: string, length: number, propertyName: string): boolean;

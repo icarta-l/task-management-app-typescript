@@ -1,5 +1,5 @@
 const bcrypt = require('bcrypt');
-const Validator = require("../Tools/validator.js");
+const Validator = require("../Tools/Validator.js");
 
 import type { Request } from 'express';
 import type { UserInterface} from "./UserInterface";

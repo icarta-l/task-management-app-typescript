@@ -1,9 +1,11 @@
 const User = require("../Entity/user.js");
 const PostgreSQLDatabase = require("../Database/PostgreSQLDatabase.js");
+const RepositoryDatabaseError = require("Exception/RepositoryDatabaseError.js");
+import {DatabaseError} from "pg-protocol";
 
 import type { Repository } from "./Repository.js";
 import type { UserInterface } from "../Entity/UserInterface.js";
-import type { Entity } from "../Entity/entity.js";
+import type { Entity } from "../Entity/Entity.js";
 import type { QueryResult } from "pg";
 
 module.exports = class UserRepository implements Repository {
@@ -41,13 +43,33 @@ module.exports = class UserRepository implements Repository {
         return user;
     }
 
-    public async create(user: UserInterface): Promise<UserInterface>
+    private handleDatabaseError(error: DatabaseError): void
     {
-        const result: QueryResult = await this.databaseConnection.query(
-            "INSERT INTO app_users (first_name, last_name, password, username, email) VALUES ($1, $2, $3, $4, $5) RETURNING *",
-            [user.firstName, user.lastName, user.password, user.username, user.email]
-            );
-        return this.hydrateRow(new User(), result);
+        switch (error.constraint) {
+            case "app_users_email_key":
+                throw new RepositoryDatabaseError("This email is already registered with another user");
+                break;
+        }
+    }
+
+    public async create(user: UserInterface): Promise<false | UserInterface>
+    {
+        let result: QueryResult|undefined;
+        try {
+            result = await this.databaseConnection.query(
+                "INSERT INTO app_users (first_name, last_name, password, username, email) VALUES ($1, $2, $3, $4, $5) RETURNING *",
+                [user.firstName, user.lastName, user.password, user.username, user.email]
+                ); 
+        } catch (error: any) {
+            if (error instanceof DatabaseError) {
+                this.handleDatabaseError(error);
+            }
+        }
+        if (typeof result === "object") {
+            return this.hydrateRow(new User(), result);
+        } else {
+            return false;
+        }
     }
 
     public async close(): Promise<void>

@@ -2,8 +2,8 @@ import {describe, expect, test} from '@jest/globals';
 import type {UserInterface} from "../../Entity/UserInterface.js";
 
 const bcrypt = require('bcrypt');
-const User = require("Entity/user.js");
-const ValidationError = require("Exception/validationError.js");
+const User = require("Entity/User.js");
+const ValidationError = require("Exception/ValidationError.js");
 
 describe("User class tests", () => {
     const myTestUser: UserInterface = new User();

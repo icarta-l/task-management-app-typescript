@@ -2,7 +2,7 @@
   "name": "task-management-app",
   "version": "1.0.0",
   "description": "A task management app",
-  "main": "app.js",
+  "main": "App.js",
   "scripts": {
     "test": "NODE_PATH=. jest --detectOpenHandles"
   },

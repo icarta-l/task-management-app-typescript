@@ -11,6 +11,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const User = require("../Entity/user.js");
 const PostgreSQLDatabase = require("../Database/PostgreSQLDatabase.js");
+const RepositoryDatabaseError = require("Exception/RepositoryDatabaseError.js");
+const pg_protocol_1 = require("pg-protocol");
 module.exports = class UserRepository {
     constructor() {
         this.databaseConnection = PostgreSQLDatabase.getInstance();
@@ -35,10 +37,30 @@ module.exports = class UserRepository {
         user.id = userData.id;
         return user;
     }
+    handleDatabaseError(error) {
+        switch (error.constraint) {
+            case "app_users_email_key":
+                throw new RepositoryDatabaseError("This email is already registered with another user");
+                break;
+        }
+    }
     create(user) {
         return __awaiter(this, void 0, void 0, function* () {
-            const result = yield this.databaseConnection.query("INSERT INTO app_users (first_name, last_name, password, username, email) VALUES ($1, $2, $3, $4, $5) RETURNING *", [user.firstName, user.lastName, user.password, user.username, user.email]);
-            return this.hydrateRow(new User(), result);
+            let result;
+            try {
+                result = yield this.databaseConnection.query("INSERT INTO app_users (first_name, last_name, password, username, email) VALUES ($1, $2, $3, $4, $5) RETURNING *", [user.firstName, user.lastName, user.password, user.username, user.email]);
+            }
+            catch (error) {
+                if (error instanceof pg_protocol_1.DatabaseError) {
+                    this.handleDatabaseError(error);
+                }
+            }
+            if (typeof result === "object") {
+                return this.hydrateRow(new User(), result);
+            }
+            else {
+                return false;
+            }
         });
     }
     close() {

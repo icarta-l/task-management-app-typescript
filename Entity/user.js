@@ -2,7 +2,7 @@
 var _a;
 Object.defineProperty(exports, "__esModule", { value: true });
 const bcrypt = require('bcrypt');
-const Validator = require("../Tools/validator.js");
+const Validator = require("../Tools/Validator.js");
 module.exports = (_a = class User {
         constructor() {
             this._id = 0;

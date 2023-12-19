@@ -1,5 +1,5 @@
 import type { Request } from "express";
-import type { Entity } from "./entity.js";
+import type { Entity } from "./Entity.js";
 
 interface UserInterface extends Entity {
     get id(): number;

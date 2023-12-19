@@ -3,7 +3,7 @@ import type { Controller } from "./Controller.js";
 import type { Repository } from "../Repository/Repository.js";
 import type { UserInterface } from "../Entity/UserInterface.js";
 
-const User = require("../Entity/user.js");
+const User = require("../Entity/User.js");
 const RepositoryFactory = require("../Repository/RepositoryFactory.js");
 
 class UserController implements Controller {

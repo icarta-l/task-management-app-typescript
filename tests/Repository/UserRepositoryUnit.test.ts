@@ -1,12 +1,14 @@
 import {jest, afterAll, describe, expect, test} from '@jest/globals';
-import type {UserInterface} from "../../Entity/UserInterface.ts";
+import type {UserInterface} from "../../Entity/UserInterface.js";
+import {DatabaseError} from "pg-protocol";
 
 require('dotenv').config({ path: '.env.test' });
 
 const bcrypt = require('bcrypt');
 const UserRepository = require("Repository/UserRepository.js");
 const PostgreSQLDatabase = require("Database/PostgreSQLDatabase.js");
-const User = require("Entity/user.js");
+const User = require("Entity/User.js");
+const RepositoryDatabaseError = require("Exception/RepositoryDatabaseError.js");
 
 const userRepository: typeof UserRepository = new UserRepository();
 
@@ -54,6 +56,26 @@ describe("UserRepository class tests", () => {
         expect(registeredUser.password).toBe(user.password);
         expect(registeredUser.username).toBe(user.username);
         expect(registeredUser.email).toBe(user.email);
+
+        await userRepository.close();
+    });
+
+    test("UserRepository cannot create two users with the same email", async () => {
+        await userRepository.connect(process.env.POSTGRESQL_HOST, process.env.POSTGRESQL_USER, process.env.POSTGRESQL_PASSWORD, Number(process.env.POSTGRESQL_PORT), process.env.POSTGRESQL_DATABASE);
+        const user = new User();
+
+        user.firstName = "Foo";
+        user.lastName = "Bar";
+        const password: string|false = user.processAndHashPassword("amazingly Cunning Password 2!");
+        if (password) {
+            user.password = password;
+        }
+        user.username = "username";
+        user.email = "test@gmail.com";
+
+        await expect(userRepository.create(user)).rejects.toThrow("This email is already registered with another user");
+        await expect(userRepository.create(user)).rejects.toThrow(RepositoryDatabaseError);
+        
 
         await userRepository.close();
     });

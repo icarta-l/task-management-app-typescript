@@ -10,6 +10,7 @@ import type { QueryResult } from "pg";
 
 module.exports = class UserRepository implements Repository {
     private databaseConnection: DatabaseInterface;
+    private reasonForFailure: string = "";
 
     constructor()
     {
@@ -49,22 +50,66 @@ module.exports = class UserRepository implements Repository {
             case "app_users_email_key":
                 throw new RepositoryDatabaseError("This email is already registered with another user");
                 break;
+            
+            case "app_users_username_key":
+                throw new RepositoryDatabaseError("This username is already registered with another user");
+                break;
+
+            default:
+                throw error;
         }
     }
 
-    public async create(user: UserInterface): Promise<false | UserInterface>
+    private handleErrors(error: any): void
     {
-        let result: QueryResult|undefined;
+        if (error instanceof DatabaseError) {
+            this.handleDatabaseError(error);
+        } else {
+            throw error;
+        }
+    }
+
+    private async attemptUserRegistration(user: UserInterface): Promise<QueryResult|undefined>
+    {
         try {
-            result = await this.databaseConnection.query(
+            return await this.databaseConnection.query(
                 "INSERT INTO app_users (first_name, last_name, password, username, email) VALUES ($1, $2, $3, $4, $5) RETURNING *",
                 [user.firstName, user.lastName, user.password, user.username, user.email]
-                ); 
+            ); 
         } catch (error: any) {
-            if (error instanceof DatabaseError) {
-                this.handleDatabaseError(error);
-            }
+            this.handleErrors(error);
         }
+    }
+
+    private userHasEmail(user: UserInterface): boolean
+    {
+        if (typeof user.email === "string" && user.email.length > 0) {
+            return true;
+        } else {
+            this.reasonForFailure = "A user needs to be associated with an email address to be registered";
+
+            return false;
+        }
+    }
+
+    public getReasonForFailure(): string
+    {
+        return this.reasonForFailure;
+    }
+
+    public userIsValid(user: UserInterface): boolean
+    {
+        if (this.userHasEmail(user)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public async create(user: UserInterface): Promise<false|UserInterface>
+    {
+        let result: QueryResult|undefined = await this.attemptUserRegistration(user);
+
         if (typeof result === "object") {
             return this.hydrateRow(new User(), result);
         } else {

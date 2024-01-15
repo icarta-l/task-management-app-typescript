@@ -116,4 +116,155 @@ describe("UserRepository class tests", () => {
         
         await userRepository.close();
     });
+
+    test("UserRepository can spot users without username", async () => {
+        await userRepository.connect(process.env.POSTGRESQL_HOST, process.env.POSTGRESQL_USER, process.env.POSTGRESQL_PASSWORD, Number(process.env.POSTGRESQL_PORT), process.env.POSTGRESQL_DATABASE);
+        const user = new User();
+
+        user.firstName = "Foo";
+        user.lastName = "Bar";
+        const password: string|false = user.processAndHashPassword("amazingly Cunning Password 2!");
+        if (password) {
+            user.password = password;
+        }
+        user.email = "test2@gmail.com";
+
+        expect(userRepository.userIsValid(user)).toBe(false);
+        expect(userRepository.getReasonForFailure()).toBe("A user needs to be associated with a username to be registered");
+        
+        await userRepository.close();
+    });
+
+    test("UserRepository can spot users without password", async () => {
+        await userRepository.connect(process.env.POSTGRESQL_HOST, process.env.POSTGRESQL_USER, process.env.POSTGRESQL_PASSWORD, Number(process.env.POSTGRESQL_PORT), process.env.POSTGRESQL_DATABASE);
+        const user = new User();
+
+        user.firstName = "Foo";
+        user.lastName = "Bar";
+        user.username = "username2";
+        user.email = "test2@gmail.com";
+
+        expect(userRepository.userIsValid(user)).toBe(false);
+        expect(userRepository.getReasonForFailure()).toBe("A user needs to be associated with a password to be registered");
+        
+        await userRepository.close();
+    });
+
+    test("UserRepository can retrieve all users", async () => {
+        await userRepository.connect(process.env.POSTGRESQL_HOST, process.env.POSTGRESQL_USER, process.env.POSTGRESQL_PASSWORD, Number(process.env.POSTGRESQL_PORT), process.env.POSTGRESQL_DATABASE);
+        const user = new User();
+
+        user.firstName = "Foo";
+        user.lastName = "Bar";
+        const password: string|false = user.processAndHashPassword("amazingly Cunning Password 2!");
+        if (password) {
+            user.password = password;
+        }
+        user.username = "username2";
+        user.email = "test3@gmail.com";
+
+        const newUser = await userRepository.create(user);
+
+        const user2 = new User();
+
+        user2.firstName = "Foo";
+        user2.lastName = "Bar";
+        const password2: string|false = user2.processAndHashPassword("amazingly Cunning Password 2!");
+        if (password2) {
+            user2.password = password2;
+        }
+        user2.username = "username3";
+        user2.email = "test4@gmail.com";
+
+        const newUser2 = await userRepository.create(user2);
+
+        const results = await userRepository.getAll();
+
+        expect(results).toEqual(expect.arrayContaining([newUser, newUser2]));
+        
+        await userRepository.close();
+    });
+
+    test("UserRepository can retrieve one specific user by id", async () => {
+        await userRepository.connect(process.env.POSTGRESQL_HOST, process.env.POSTGRESQL_USER, process.env.POSTGRESQL_PASSWORD, Number(process.env.POSTGRESQL_PORT), process.env.POSTGRESQL_DATABASE);
+        const user = new User();
+
+        user.firstName = "Foo";
+        user.lastName = "Bar";
+        const password: string|false = user.processAndHashPassword("amazingly Cunning Password 2!");
+        if (password) {
+            user.password = password;
+        }
+        user.username = "username4";
+        user.email = "test5@gmail.com";
+
+        const newUser = await userRepository.create(user);
+
+        const retrievedUser = await userRepository.get(newUser.id);
+
+        expect(retrievedUser).toEqual(newUser);
+        
+        await userRepository.close();
+    });
+
+    test("UserRepository returns false when trying to retrieve a non-existing user by id", async () => {
+        await userRepository.connect(process.env.POSTGRESQL_HOST, process.env.POSTGRESQL_USER, process.env.POSTGRESQL_PASSWORD, Number(process.env.POSTGRESQL_PORT), process.env.POSTGRESQL_DATABASE);
+
+        const retrievedUser = await userRepository.get(1);
+
+        expect(retrievedUser).toEqual(false);
+        
+        await userRepository.close();
+    });
+
+    test("UserRepository can update user", async () => {
+        await userRepository.connect(process.env.POSTGRESQL_HOST, process.env.POSTGRESQL_USER, process.env.POSTGRESQL_PASSWORD, Number(process.env.POSTGRESQL_PORT), process.env.POSTGRESQL_DATABASE);
+        const user = new User();
+
+        user.firstName = "Foo";
+        user.lastName = "Bar";
+        const password: string|false = user.processAndHashPassword("amazingly Cunning Password 2!");
+        if (password) {
+            user.password = password;
+        }
+        user.username = "username7";
+        user.email = "test8@gmail.com";
+
+        const registeredUser: UserInterface = await userRepository.create(user);
+
+        registeredUser.firstName = "Dofus";
+
+        const result = await userRepository.update(registeredUser);
+
+        expect(result).toBe(true);
+        expect(registeredUser.id).toBeGreaterThan(0);
+        expect(registeredUser.firstName).toBe("Dofus");
+        expect(registeredUser.lastName).toBe(user.lastName);
+        expect(bcrypt.compareSync("amazingly Cunning Password 2!", registeredUser.password)).toBe(true);
+        expect(registeredUser.password).toBe(user.password);
+        expect(registeredUser.username).toBe(user.username);
+        expect(registeredUser.email).toBe(user.email);
+    });
+
+    test("UserRepository returns false when trying to update a non-existing user by id", async () => {
+        await userRepository.connect(process.env.POSTGRESQL_HOST, process.env.POSTGRESQL_USER, process.env.POSTGRESQL_PASSWORD, Number(process.env.POSTGRESQL_PORT), process.env.POSTGRESQL_DATABASE);
+        const user = new User();
+
+        user.firstName = "Foo";
+        user.lastName = "Bar";
+        const password: string|false = user.processAndHashPassword("amazingly Cunning Password 2!");
+        if (password) {
+            user.password = password;
+        }
+        user.username = "username8";
+        user.email = "test9@gmail.com";
+
+        const registeredUser: UserInterface = await userRepository.create(user);
+
+        registeredUser.id = 1;
+
+        const result = await userRepository.update(registeredUser);
+
+        expect(result).toBe(false);
+    });
 });

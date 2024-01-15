@@ -1,9 +1,9 @@
 import type { Entity } from "../Entity/Entity.js";
 
 interface Repository {
-    getAll(): Promise<Entity[]>;
-    get(id: number): Entity;
-    update(entity: Entity): boolean;
+    getAll(): Promise<Entity[]|boolean>;
+    get(id: number): Promise<Entity|boolean>;
+    update(entity: Entity): Promise<boolean>;
     delete(entity: Entity): boolean;
     create(entity: Entity): Promise<false | Entity>;
     close(): Promise<void>;

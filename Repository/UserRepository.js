@@ -25,11 +25,38 @@ module.exports = class UserRepository {
     }
     getAll() {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield this.databaseConnection.query("SELECT * FROM app_users");
+            const result = yield this.databaseConnection.query("SELECT * FROM app_users");
+            if (result.rowCount !== null && result.rowCount > 0) {
+                return this.hydrateRows(result);
+            }
+            else {
+                return false;
+            }
         });
     }
-    hydrateRow(user, result) {
-        const userData = result.rows[0];
+    get(id) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const result = yield this.databaseConnection.query("SELECT * FROM app_users WHERE id = $1", [id]);
+            if (result.rowCount !== null && result.rowCount > 0) {
+                return this.hydrateRow(new User(), result.rows[0]);
+            }
+            else {
+                return false;
+            }
+        });
+    }
+    update(user) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const result = yield this.databaseConnection.query("UPDATE app_users SET first_name = $1, last_name = $2 WHERE id = $3", [user.firstName, user.lastName, user.id]);
+            if (result.rowCount !== null && result.rowCount > 0) {
+                return true;
+            }
+            else {
+                return false;
+            }
+        });
+    }
+    hydrateRow(user, userData) {
         user.username = userData.username;
         user.password = userData.password;
         user.firstName = userData.first_name;
@@ -37,6 +64,13 @@ module.exports = class UserRepository {
         user.email = userData.email;
         user.id = userData.id;
         return user;
+    }
+    hydrateRows(result) {
+        const users = [];
+        for (let i = 0; i < result.rows.length; i++) {
+            users.push(this.hydrateRow(new User(), result.rows[i]));
+        }
+        return users;
     }
     handleDatabaseError(error) {
         switch (error.constraint) {
@@ -77,11 +111,31 @@ module.exports = class UserRepository {
             return false;
         }
     }
+    userHasUsername(user) {
+        if (typeof user.username === "string" && user.username.length > 0) {
+            return true;
+        }
+        else {
+            this.reasonForFailure = "A user needs to be associated with a username to be registered";
+            return false;
+        }
+    }
+    userHasPassword(user) {
+        if (typeof user.password === "string" && user.password.length > 0) {
+            return true;
+        }
+        else {
+            this.reasonForFailure = "A user needs to be associated with a password to be registered";
+            return false;
+        }
+    }
     getReasonForFailure() {
         return this.reasonForFailure;
     }
     userIsValid(user) {
-        if (this.userHasEmail(user)) {
+        if (this.userHasEmail(user) &&
+            this.userHasUsername(user) &&
+            this.userHasPassword(user)) {
             return true;
         }
         else {
@@ -91,8 +145,8 @@ module.exports = class UserRepository {
     create(user) {
         return __awaiter(this, void 0, void 0, function* () {
             let result = yield this.attemptUserRegistration(user);
-            if (typeof result === "object") {
-                return this.hydrateRow(new User(), result);
+            if (typeof result === "object" && result.rowCount !== null && result.rowCount > 0) {
+                return this.hydrateRow(new User(), result.rows[0]);
             }
             else {
                 return false;

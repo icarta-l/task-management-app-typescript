@@ -22,18 +22,43 @@ module.exports = class UserRepository implements Repository {
         await this.databaseConnection.connect(host, user, password, port, database_name);
     }
 
-    public async getAll(): Promise<UserInterface[]>
+    public async getAll(): Promise<UserInterface[]|boolean>
     {
-        return await this.databaseConnection.query("SELECT * FROM app_users");
+        const result: QueryResult = await this.databaseConnection.query("SELECT * FROM app_users");
+
+        if (result.rowCount !== null && result.rowCount > 0) {
+            return this.hydrateRows(result);
+        } else {
+            return false;
+        }
     }
-    get(id: number): Entity;
-    update(entity: Entity): boolean;
+
+    public async get(id: number): Promise<UserInterface|boolean>
+    {
+        const result: QueryResult = await this.databaseConnection.query("SELECT * FROM app_users WHERE id = $1", [id]);
+
+        if (result.rowCount !== null && result.rowCount > 0) {
+            return this.hydrateRow(new User(), result.rows[0]);
+        } else {
+            return false;
+        }
+    }
+
+    public async update(user: UserInterface): Promise<boolean>
+    {
+        const result: QueryResult = await this.databaseConnection.query("UPDATE app_users SET first_name = $1, last_name = $2 WHERE id = $3", [user.firstName, user.lastName, user.id]);
+
+        if (result.rowCount !== null && result.rowCount > 0) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     delete(entity: Entity): boolean;
 
-    private hydrateRow(user: UserInterface, result: QueryResult): UserInterface
+    private hydrateRow(user: UserInterface, userData: UserQueryResult): UserInterface
     {
-        const userData: UserQueryResult = result.rows[0];
-
         user.username = userData.username;
         user.password = userData.password;
         user.firstName = userData.first_name;
@@ -42,6 +67,17 @@ module.exports = class UserRepository implements Repository {
         user.id = userData.id;
 
         return user;
+    }
+
+    private hydrateRows(result: QueryResult): UserInterface[]
+    {
+        const users: UserInterface[] = [];
+
+        for (let i: number = 0; i < result.rows.length; i++) {
+            users.push(this.hydrateRow(new User(), result.rows[i]));
+        }
+
+        return users;
     }
 
     private handleDatabaseError(error: DatabaseError): void
@@ -92,6 +128,28 @@ module.exports = class UserRepository implements Repository {
         }
     }
 
+    private userHasUsername(user: UserInterface): boolean
+    {
+        if (typeof user.username === "string" && user.username.length > 0) {
+            return true;
+        } else {
+            this.reasonForFailure = "A user needs to be associated with a username to be registered";
+
+            return false;
+        }
+    }
+
+    private userHasPassword(user: UserInterface): boolean
+    {
+        if (typeof user.password === "string" && user.password.length > 0) {
+            return true;
+        } else {
+            this.reasonForFailure = "A user needs to be associated with a password to be registered";
+
+            return false;
+        }
+    }
+
     public getReasonForFailure(): string
     {
         return this.reasonForFailure;
@@ -99,7 +157,9 @@ module.exports = class UserRepository implements Repository {
 
     public userIsValid(user: UserInterface): boolean
     {
-        if (this.userHasEmail(user)) {
+        if (this.userHasEmail(user) && 
+        this.userHasUsername(user) &&
+        this.userHasPassword(user)) {
             return true;
         } else {
             return false;
@@ -110,8 +170,8 @@ module.exports = class UserRepository implements Repository {
     {
         let result: QueryResult|undefined = await this.attemptUserRegistration(user);
 
-        if (typeof result === "object") {
-            return this.hydrateRow(new User(), result);
+        if (typeof result === "object" && result.rowCount !== null && result.rowCount > 0) {
+            return this.hydrateRow(new User(), result.rows[0]);
         } else {
             return false;
         }

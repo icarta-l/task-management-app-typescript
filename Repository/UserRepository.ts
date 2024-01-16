@@ -1,7 +1,7 @@
 const User = require("../Entity/user.js");
 const PostgreSQLDatabase = require("../Database/PostgreSQLDatabase.js");
 const RepositoryDatabaseError = require("Exception/RepositoryDatabaseError.js");
-import {DatabaseError} from "pg-protocol";
+import { DatabaseError } from "pg-protocol";
 
 import type { Repository } from "./Repository.js";
 import type { UserInterface } from "../Entity/UserInterface.js";
@@ -55,7 +55,16 @@ module.exports = class UserRepository implements Repository {
         }
     }
 
-    delete(entity: Entity): boolean;
+    public async delete(user: UserInterface): Promise<boolean>
+    {
+        const result: QueryResult = await this.databaseConnection.query("DELETE FROM app_users WHERE id = $1", [user.id]);
+
+        if (result.rowCount !== null && result.rowCount > 0) {
+            return true;
+        } else {
+            return false;
+        }
+    }
 
     private hydrateRow(user: UserInterface, userData: UserQueryResult): UserInterface
     {

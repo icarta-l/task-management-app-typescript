@@ -185,6 +185,22 @@ describe("UserRepository class tests", () => {
         await userRepository.close();
     });
 
+    test("UserRepository returns false when trying to retrieve all users when database is empty", async () => {        
+        const postgreSQLDatabase = PostgreSQLDatabase.getInstance();
+
+        await postgreSQLDatabase.connect(process.env.POSTGRESQL_HOST, process.env.POSTGRESQL_USER, process.env.POSTGRESQL_PASSWORD, Number(process.env.POSTGRESQL_PORT), process.env.POSTGRESQL_DATABASE);
+        await postgreSQLDatabase.query("TRUNCATE TABLE app_users, project_members, team_members, user_tasks");
+        await postgreSQLDatabase.close();
+
+        await userRepository.connect(process.env.POSTGRESQL_HOST, process.env.POSTGRESQL_USER, process.env.POSTGRESQL_PASSWORD, Number(process.env.POSTGRESQL_PORT), process.env.POSTGRESQL_DATABASE);
+
+        const results = await userRepository.getAll();
+
+        expect(results).toBe(false);
+        
+        await userRepository.close();
+    });
+
     test("UserRepository can retrieve one specific user by id", async () => {
         await userRepository.connect(process.env.POSTGRESQL_HOST, process.env.POSTGRESQL_USER, process.env.POSTGRESQL_PASSWORD, Number(process.env.POSTGRESQL_PORT), process.env.POSTGRESQL_DATABASE);
         const user = new User();
@@ -264,6 +280,51 @@ describe("UserRepository class tests", () => {
         registeredUser.id = 1;
 
         const result = await userRepository.update(registeredUser);
+
+        expect(result).toBe(false);
+    });
+
+    test("UserRepository can delete user", async () => {
+        await userRepository.connect(process.env.POSTGRESQL_HOST, process.env.POSTGRESQL_USER, process.env.POSTGRESQL_PASSWORD, Number(process.env.POSTGRESQL_PORT), process.env.POSTGRESQL_DATABASE);
+        const user = new User();
+
+        user.firstName = "Foo";
+        user.lastName = "Bar";
+        const password: string|false = user.processAndHashPassword("amazingly Cunning Password 2!");
+        if (password) {
+            user.password = password;
+        }
+        user.username = "username9";
+        user.email = "test10@gmail.com";
+
+        const registeredUser: UserInterface = await userRepository.create(user);
+
+        const deletionResult = await userRepository.delete(registeredUser);
+
+        const retrievalResult = await userRepository.get(registeredUser.id);
+
+        expect(deletionResult).toBe(true);
+        expect(retrievalResult).toBe(false);
+    });
+
+    test("UserRepository returns false when trying to delete a non-existing user", async () => {
+        await userRepository.connect(process.env.POSTGRESQL_HOST, process.env.POSTGRESQL_USER, process.env.POSTGRESQL_PASSWORD, Number(process.env.POSTGRESQL_PORT), process.env.POSTGRESQL_DATABASE);
+        const user = new User();
+
+        user.firstName = "Foo";
+        user.lastName = "Bar";
+        const password: string|false = user.processAndHashPassword("amazingly Cunning Password 2!");
+        if (password) {
+            user.password = password;
+        }
+        user.username = "username10";
+        user.email = "test11@gmail.com";
+
+        const registeredUser: UserInterface = await userRepository.create(user);
+
+        registeredUser.id = 1;
+
+        const result = await userRepository.delete(registeredUser);
 
         expect(result).toBe(false);
     });

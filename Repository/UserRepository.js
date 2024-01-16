@@ -56,6 +56,17 @@ module.exports = class UserRepository {
             }
         });
     }
+    delete(user) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const result = yield this.databaseConnection.query("DELETE FROM app_users WHERE id = $1", [user.id]);
+            if (result.rowCount !== null && result.rowCount > 0) {
+                return true;
+            }
+            else {
+                return false;
+            }
+        });
+    }
     hydrateRow(user, userData) {
         user.username = userData.username;
         user.password = userData.password;

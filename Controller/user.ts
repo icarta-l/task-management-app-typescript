@@ -79,7 +79,7 @@ class UserController implements Controller {
     private handleInsertionResponse(result: Entity|false, response: Response): void
     {
         if (result instanceof User) {
-            response.status(201).send("POST request to \"register\" route");
+            response.status(201).send("User successfully registered");
         } else {
             response.status(422).send("For some reasons we couldn't register the new user. Try modifying the submitted user information and submit again");
         }

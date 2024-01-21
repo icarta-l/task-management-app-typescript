@@ -8,7 +8,6 @@ const UserRepository = require("Repository/UserRepository.js");
 const PostgreSQLDatabase = require("Database/PostgreSQLDatabase.js");
 const User = require("Entity/User.js");
 const RepositoryDatabaseError = require("Exception/RepositoryDatabaseError.js");
-const ValidationError = require("Exception/ValidationError.js");
 
 const userRepository: typeof UserRepository = new UserRepository();
 
